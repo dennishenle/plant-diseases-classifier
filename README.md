@@ -26,7 +26,7 @@ New Plant Diseases Dataset(Augmented) copy/
 uv sync
 ```
 
-This installs PyTorch, torchvision, Pillow, and tqdm into an isolated virtual environment.
+This installs PyTorch, torchvision, Pillow, tqdm, and matplotlib into an isolated virtual environment.
 
 ## Training
 
@@ -45,6 +45,7 @@ uv run train.py
 | `--freeze-epochs` | `5` | Epochs to train head-only before unfreezing backbone |
 | `--num-workers` | `4` | DataLoader worker processes |
 | `--output-dir` | `output/` | Where to save checkpoints and logs |
+| `--weight-decay` | `1e-4` | AdamW weight decay |
 | `--no-amp` | off | Disable mixed-precision (AMP) |
 
 ### Example: faster run on CPU
@@ -78,9 +79,31 @@ uv run plot_history.py
 
 This prints a summary table and saves `output/history.png` with loss and accuracy curves. Re-run it any time to refresh the plot.
 
+| Flag | Default | Description |
+|---|---|---|
+| `--csv` | `output/history.csv` | CSV file to read |
+| `--out` | next to CSV as `.png` | Output PNG path |
+| `--freeze-epochs` | `5` | Draw freeze/unfreeze boundary line |
+
+## Classifying a single image
+
+Once training is complete, use `classify.py` to predict the disease in one image:
+
+```bash
+uv run classify.py path/to/leaf.jpg
+uv run classify.py path/to/leaf.jpg --model output/best_model.pt
 ```
-uv run plot_history.py --freeze-epochs 5   # draw freeze/unfreeze boundary line
+
+The script prints the predicted class and confidence, e.g.:
+
 ```
+Apple___Apple_scab  (94.3%)
+```
+
+| Flag | Default | Description |
+|---|---|---|
+| `image` | *(required)* | Path to the image file |
+| `--model` | `output/best_model.pt` | Path to the model checkpoint |
 
 ## Outputs
 
