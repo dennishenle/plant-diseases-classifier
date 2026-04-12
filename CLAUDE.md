@@ -50,7 +50,7 @@ Two-phase: head-only for `--freeze-epochs` epochs (backbone frozen), then full f
 
 ## Dataset
 
-Expected at `New Plant Diseases Dataset(Augmented) copy/` (override with `--data-dir`). 38 classes, `ImageFolder`-compatible layout: one subdirectory per class under `train/` and `valid/`.
+Expected at `New Plant Diseases Dataset(Augmented)/` (override with `--data-dir`). 38 classes, `ImageFolder`-compatible layout: one subdirectory per class under `train/` and `valid/`.
 
 ## Checkpoint format
 
