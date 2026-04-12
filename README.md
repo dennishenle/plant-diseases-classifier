@@ -1,11 +1,12 @@
 # Plant Disease Classification
 
 Trains an EfficientNet-B0 image classifier on the [New Plant Diseases Dataset](https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset) to identify 38 plant disease / healthy categories.
+If you want to train the model yourself, download the dataset first.
 
 ## Dataset layout
 
 ```
-New Plant Diseases Dataset(Augmented) copy/
+New Plant Diseases Dataset(Augmented)/
 ├── train/
 │   ├── Apple___Apple_scab/
 │   ├── Apple___Black_rot/
