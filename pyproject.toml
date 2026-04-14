@@ -9,7 +9,10 @@ dependencies = [
     "pillow>=10.0.0",
     "tqdm>=4.66.0",
     "matplotlib>=3.8.0",
+    "flask>=3.0.0",
 ]
 
 [dependency-groups]
-dev = []
+dev = [
+    "pytest>=8.0.0",
+]

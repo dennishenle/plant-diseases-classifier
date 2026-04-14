@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Disease Classifier</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: #1a7a3c;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .drop-zone {
+      border: 2px dashed #b0c4b8;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #f9fdf9;
+    }
+
+    .drop-zone:hover {
+      border-color: #1a7a3c;
+      background: #f0faf3;
+    }
+
+    .drop-zone input[type="file"] {
+      display: none;
+    }
+
+    .drop-zone-label {
+      font-size: 0.9rem;
+      color: #555;
+      pointer-events: none;
+    }
+
+    .drop-zone-label span {
+      color: #1a7a3c;
+      font-weight: 600;
+    }
+
+    #preview-wrap {
+      margin-top: 1rem;
+      display: none;
+      text-align: center;
+    }
+
+    #preview {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 6px;
+      object-fit: contain;
+      border: 1px solid #e0e0e0;
+    }
+
+    #file-name {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.35rem;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.7rem 1rem;
+      background: #1a7a3c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #155e2e;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 1.25rem;
+      min-height: 3rem;
+    }
+
+    .result-loading {
+      font-size: 0.9rem;
+      color: #888;
+      text-align: center;
+      padding: 0.5rem 0;
+    }
+
+    .result-success {
+      background: #f0faf3;
+      border: 1px solid #b8dfc6;
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+    }
+
+    .result-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a7a3c;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-confidence {
+      font-size: 0.875rem;
+      color: #444;
+    }
+
+    .result-error {
+      background: #fff5f5;
+      border: 1px solid #f5b8b8;
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+      font-size: 0.875rem;
+      color: #b83232;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Plant Disease Classifier</h1>
+    <p class="subtitle">Upload a leaf photo to identify diseases.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*">
+      <label for="file-input" class="drop-zone-label">
+        <span>Choose a file</span> or drag it here
+      </label>
+    </div>
+
+    <div id="preview-wrap">
+      <img id="preview" alt="Selected image preview">
+      <p id="file-name"></p>
+    </div>
+
+    <button class="btn" id="classify-btn" disabled>Classify</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const previewWrap = document.getElementById('preview-wrap');
+    const preview = document.getElementById('preview');
+    const fileName = document.getElementById('file-name');
+    const classifyBtn = document.getElementById('classify-btn');
+    const result = document.getElementById('result');
+
+    let selectedFile = null;
+    let previewObjectURL = null;
+
+    function showPreview(file) {
+      if (previewObjectURL) {
+        URL.revokeObjectURL(previewObjectURL);
+      }
+      previewObjectURL = URL.createObjectURL(file);
+      preview.src = previewObjectURL;
+      fileName.textContent = file.name;
+      previewWrap.style.display = 'block';
+      classifyBtn.disabled = false;
+      result.innerHTML = '';
+    }
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        selectedFile = fileInput.files[0];
+        showPreview(selectedFile);
+      }
+    });
+
+    // Drag-and-drop support
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#1a7a3c';
+      dropZone.style.background = '#f0faf3';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '';
+      dropZone.style.background = '';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '';
+      dropZone.style.background = '';
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        selectedFile = files[0];
+        showPreview(selectedFile);
+      }
+    });
+
+    classifyBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      classifyBtn.disabled = true;
+      result.innerHTML = '<p class="result-loading">Classifying&hellip;</p>';
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      try {
+        const response = await fetch('/classify', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const msg = data.error || `Server error (${response.status})`;
+          result.innerHTML = `<div class="result-error">${escapeHtml(msg)}</div>`;
+        } else {
+          const confidencePct = (data.confidence * 100).toFixed(1);
+          result.innerHTML = `
+            <div class="result-success">
+              <div class="result-label">${escapeHtml(data.label)}</div>
+              <div class="result-confidence">Confidence: ${confidencePct}&nbsp;%</div>
+            </div>`;
+        }
+      } catch (err) {
+        result.innerHTML = `<div class="result-error">Request failed: ${escapeHtml(err.message)}</div>`;
+      } finally {
+        classifyBtn.disabled = false;
+      }
+    });
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
