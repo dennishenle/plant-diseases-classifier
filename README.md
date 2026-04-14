@@ -106,7 +106,21 @@ Apple___Apple_scab  (94.3%)
 | `image` | *(required)* | Path to the image file |
 | `--model` | `output/best_model.pt` | Path to the model checkpoint |
 
-## Outputs
+## Web UI
+ 
+ You can run a simple Flask web interface to classify images via your browser:
+ 
+ ```bash
+ uv run web_app.py
+ ```
+ 
+ Once started, visit `http://127.0.0.1:5000`. 
+ 
+ **Note**: This requires a trained model to be present at `output/best_model.pt`.
+ 
+ 
+ ## Outputs
+
 
 After training, `output/` contains:
 
